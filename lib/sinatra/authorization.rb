@@ -22,7 +22,7 @@ module Sinatra
     # From you app, call set :authorization_realm, "my app" to set this
     # or define a #authorization_realm method in your helpers block.
     def authorization_realm
-      Sinatra::Default.authorization_realm
+      options.authorization_realm
     end
 
     # Call in any event that requires authentication
@@ -36,12 +36,15 @@ module Sinatra
 
     # Convenience method to determine if a user is logged in
     def authorized?
-      !!request.env['REMOTE_USER']
+      #!!request.env['REMOTE_USER']
+      !!current_user
     end
     alias :logged_in? :authorized?
 
     # Name provided by the current user to log in
     def current_user
+      request.env['REMOTE_USER'] = auth.username if
+        auth.provided? && auth.basic? && authorize(*auth.credentials)
       request.env['REMOTE_USER']
     end
 
